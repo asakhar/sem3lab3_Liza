@@ -1,7 +1,9 @@
 #include "LogicGate.hpp"
 int main() {
-  Gate<12> gate;
-  std::cout << gate;
+  Gate<12> gate = Gate<12>(3,2);
+  gate.terminals[1].state = 1;
+  gate.terminals[3].state = 2;
+  std::cout << gate << std::endl;
   
   // std::cout.operator<<()
 }
