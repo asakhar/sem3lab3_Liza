@@ -107,10 +107,10 @@ struct Gate
    */
   Gate(size_t in, size_t out)
   {
-    for (size_t i = 0; i < in; i++)
-      terminals[i] = Terminal(false, 0, 0);
-    for (size_t i = in; i < (size = in + out); i++)
-      terminals[i] = Terminal(true, 0, 0);
+    for (size = 0; size < in; size++)
+      terminals[size] = Terminal(false, 0, 0);
+    for (; size < in + out; size++)
+      terminals[size] = Terminal(true, 0, 0);
   }
   /**
    * @brief Construct a new Gate object
