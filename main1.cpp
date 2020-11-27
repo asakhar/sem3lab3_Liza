@@ -44,7 +44,7 @@ void remove_gate(GateMap& lg, std::string& sel)
   std::cout << (lg.erase(name) == 1 ? "Successfully removed!" : "Key not found!");
 }
 
-void print_gate(GateMap& lg, std::string& sel) { lg[sel].output(std::cout << sel <<" gate: \n"); }
+void print_gate(GateMap& lg, std::string& sel) { lg[sel].output(std::cout << sel << " gate: \n"); }
 
 void list_gates(GateMap& lg, std::string& sel)
 {
@@ -86,7 +86,15 @@ void add_terminals(GateMap& lg, std::string& sel)
     Terminal term{ans == "out", conns};
     std::cout << "Input state (0,1 or X): ";
     term.input();
-    lg[sel].addTerminal(std::move(term));
+    try
+    {
+      lg[sel].addTerminal(std::move(term));
+    }
+    catch (std::runtime_error& e)
+    {
+      std::cerr << e.what() << std::endl;
+      return;
+    }
     std::cout << "Do you want to continue?(0_/1) > ";
     std::cin >> ch;
   }
@@ -131,7 +139,7 @@ void connect_term(GateMap& lg, std::string& sel)
   {
     lg[sel].connect(pos);
   }
-  catch (std::runtime_error& e)
+  catch (std::out_of_range& e)
   {
     std::cout << e.what() << std::endl;
   }
@@ -149,7 +157,7 @@ void disconnect_term(GateMap& lg, std::string& sel)
   {
     lg[sel].disconnect(pos);
   }
-  catch (std::runtime_error& e)
+  catch (std::out_of_range& e)
   {
     std::cout << e.what() << std::endl;
   }

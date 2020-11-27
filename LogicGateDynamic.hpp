@@ -63,61 +63,58 @@ struct Terminal
 };
 struct Gate
 {
-  static constexpr size_t N = 20;
-  Terminal terminals[N];
-  size_t size;
-  Gate() : terminals{{false, 0, 0}, {true, 0, 1}}, size{2} {}
+  std::vector<Terminal> terminals;
+  Gate()
+  {
+    terminals.push_back({false, 0, 0});
+    terminals.push_back({true, 0, 1});
+  }
   Gate(size_t in, size_t out)
   {
-    if (in + out > N)
-      throw std::runtime_error("Overflow");
     for (size_t i = 0; i < in; i++)
-      terminals[i] = Terminal(false, 0, 0);
-    for (size_t i = in; i < (size = in + out); i++)
-      terminals[i] = Terminal(true, 0, 0);
+      terminals.push_back({false, 0, 0});
+    for (size_t i = in; i < in + out; i++)
+      terminals.push_back({true, 0, 0});
   }
-  Gate(Terminal terms[N]) : terminals{terms}, size{N} {};
+  Gate(std::vector<Terminal> terms) {
+    terminals = terms;
+  };
 
   unsigned short const& operator()(size_t n, unsigned short val)
   {
-    if (n >= size)
+    if (n >= terminals.size())
       throw std::out_of_range("");
     return terminals[n].state = val;
   }
-  unsigned short const& operator[](size_t n)
-  {
-    return terminals[n].state;
-  }
+  unsigned short const& operator[](size_t n) { return terminals[n].state; }
   unsigned short const& at(size_t n)
   {
-    if (n >= size)
+    if (n >= terminals.size())
       throw std::out_of_range("");
     return terminals[n].state;
   }
   void connect(size_t n)
   {
-    if (n >= size)
+    if (n >= terminals.size())
       throw std::out_of_range("");
     terminals[n].connect();
   }
   void disconnect(size_t n)
   {
-    if (n >= size)
+    if (n >= terminals.size())
       throw std::out_of_range("");
     terminals[n].disconnect();
   }
   Gate& operator+=(Terminal&& term)
   {
-    if (size == N)
-      throw std::runtime_error("Overflow");
-    terminals[size++] = term;
+    terminals.push_back(term);
     return *this;
   }
 };
 
 std::istream& operator>>(std::istream& stream, Gate& gate)
 {
-  for (size_t i = 0; i < gate.size; i++)
+  for (size_t i = 0; i < gate.terminals.size(); i++)
   {
     std::cout << "Enter state for terminal#" << i + 1 << (gate.terminals[i].isOutput ? " (Output)>" : " (Input)>");
     stream >> gate.terminals[i].state;
@@ -128,11 +125,11 @@ std::istream& operator>>(std::istream& stream, Gate& gate)
 std::ostream& operator<<(std::ostream& stream, Gate& gate)
 {
   stream << "Inputs:  ";
-  for (size_t i = 0; i < gate.size; i++)
+  for (size_t i = 0; i < gate.terminals.size(); i++)
     if (!gate.terminals[i].isOutput)
       stream << (((gate.terminals[i].state == 2) ? 'X' : (char)('0' + gate.terminals[i].state)));
   stream << "\nOutputs: ";
-  for (size_t i = 0; i < gate.size; i++)
+  for (size_t i = 0; i < gate.terminals.size(); i++)
     if (gate.terminals[i].isOutput)
       stream << (((gate.terminals[i].state == 2) ? 'X' : (char)('0' + gate.terminals[i].state)));
   return stream;
