@@ -130,10 +130,10 @@ std::ostream& operator<<(std::ostream& stream, Gate& gate)
   stream << "Inputs:  ";
   for (size_t i = 0; i < gate.size; i++)
     if (!gate.terminals[i].isOutput)
-      stream << (((gate.terminals[i].state == 2) ? 'X' : (char)('0' + gate.terminals[i].state)));
+      stream << (((gate.terminals[i].state == 2) ? "  X   " : (gate.terminals[i].state?" High ":" Low  ")));
   stream << "\nOutputs: ";
   for (size_t i = 0; i < gate.size; i++)
     if (gate.terminals[i].isOutput)
-      stream << (((gate.terminals[i].state == 2) ? 'X' : (char)('0' + gate.terminals[i].state)));
+      stream << (((gate.terminals[i].state == 2) ? "  X   " : (gate.terminals[i].state?" High ":" Low  ")));
   return stream;
 }

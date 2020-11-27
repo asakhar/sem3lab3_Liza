@@ -234,11 +234,11 @@ struct Gate
     stream << "Inputs:  ";
     for (size_t i = 0; i < size; i++)
       if (!terminals[i].isOutput)
-        stream << (((terminals[i].state == 2) ? 'X' : (char)('0' + terminals[i].state)));
+        stream << (((terminals[i].state == 2) ? "  X   " : (terminals[i].state?" High ":" Low  ")));
     stream << "\nOutputs: ";
     for (size_t i = 0; i < size; i++)
       if (terminals[i].isOutput)
-        stream << (((terminals[i].state == 2) ? 'X' : (char)('0' + terminals[i].state)));
+        stream << (((terminals[i].state == 2) ? "  X   " : (terminals[i].state?" High ":" Low  ")));
     return stream;
   }
 };
