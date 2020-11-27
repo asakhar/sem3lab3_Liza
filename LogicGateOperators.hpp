@@ -32,41 +32,45 @@ struct Terminal
       return --conn_num;
     throw std::runtime_error("Can not disconnect! No connections");
   }
-  
+
   friend std::istream& operator>>(std::istream& stream, Terminal& term)
   {
     char tmp;
-    goto start;
-  retry:
-    std::cout << "Retry>";
-  start:
-    stream >> tmp;
-    switch (tmp)
+    bool flag = 1;
+    while (flag)
     {
-    case '0':
-      term.state = 0;
-      break;
-    case '1':
-      term.state = 1;
-      break;
-    case 'X':
-      term.state = 2;
-      break;
-    default:
-      goto retry;
+      stream >> tmp;
+      flag = 0;
+      switch (tmp)
+      {
+      case '0':
+        term.state = 0;
+        break;
+      case '1':
+        term.state = 1;
+        break;
+      case 'X':
+        term.state = 2;
+        break;
+      default:
+        std::cout << "Retry>";
+        flag = 1;
+        break;
+      }
     }
     return stream;
   }
 };
-
-template <const size_t N>
 struct Gate
 {
+  static constexpr size_t N = 20;
   Terminal terminals[N];
   size_t size;
   Gate() : terminals{{false, 0, 0}, {true, 0, 1}}, size{2} {}
   Gate(size_t in, size_t out)
   {
+    if (in + out > N)
+      throw std::runtime_error("Overflow");
     for (size_t i = 0; i < in; i++)
       terminals[i] = Terminal(false, 0, 0);
     for (size_t i = in; i < (size = in + out); i++)
@@ -74,22 +78,40 @@ struct Gate
   }
   Gate(Terminal terms[N]) : terminals{terms}, size{N} {};
 
-  unsigned short const& operator()(size_t n, unsigned short val) { return terminals[n].state = val; }
-  unsigned short const& operator[](size_t n) { return terminals[n].state; }
-  void connect(size_t n) { terminals[n].connect(); }
-  void disconnect(size_t n) { terminals[n].disconnect(); }
-  Gate<N>& operator+=(Terminal&& term)
+  unsigned short const& operator()(size_t n, unsigned short val)
+  {
+    if (n >= N)
+      throw std::runtime_error("Index error");
+    return terminals[n].state = val;
+  }
+  unsigned short const& operator[](size_t n)
+  {
+    if (n >= N)
+      throw std::runtime_error("Index error");
+    return terminals[n].state;
+  }
+  void connect(size_t n)
+  {
+    if (n >= N)
+      throw std::runtime_error("Index error");
+    terminals[n].connect();
+  }
+  void disconnect(size_t n)
+  {
+    if (n >= N)
+      throw std::runtime_error("Index error");
+    terminals[n].disconnect();
+  }
+  Gate& operator+=(Terminal&& term)
   {
     if (size == N)
       throw std::runtime_error("Overflow");
     terminals[size++] = term;
     return *this;
   }
-  operator bool() = delete;
-  operator int()  = delete;
 };
-template <const size_t _N>
-std::istream& operator>>(std::istream& stream, Gate<_N>& gate)
+
+std::istream& operator>>(std::istream& stream, Gate& gate)
 {
   for (size_t i = 0; i < gate.size; i++)
   {
@@ -98,8 +120,8 @@ std::istream& operator>>(std::istream& stream, Gate<_N>& gate)
   }
   return stream;
 }
-template <const size_t _N>
-std::ostream& operator<<(std::ostream& stream, Gate<_N>& gate)
+
+std::ostream& operator<<(std::ostream& stream, Gate& gate)
 {
   stream << "Inputs:  ";
   for (size_t i = 0; i < gate.size; i++)
