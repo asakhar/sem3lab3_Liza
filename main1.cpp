@@ -1,7 +1,7 @@
 #include "LogicGate.hpp"
 #include <map>
-constexpr size_t SIZE = 12;
-typedef Gate<SIZE> LogicGate;
+constexpr size_t SIZE = Gate::N;
+typedef Gate LogicGate;
 typedef std::map<std::string, LogicGate> GateMap;
 
 void exit(GateMap& lg, std::string& sel) { exit(0); }
