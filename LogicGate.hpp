@@ -154,7 +154,7 @@ struct Gate
   unsigned short const& setTerminalState(size_t n, unsigned short val)
   {
     if (n >= size)
-      throw std::runtime_error("Index error");
+      throw std::out_of_range("");
     if (val < 3)
       return terminals[n].state = val;
     return terminals[n].state;
@@ -168,7 +168,7 @@ struct Gate
   unsigned short const& getTerminalState(size_t n)
   {
     if (n >= size)
-      throw std::runtime_error("Index error");
+      throw std::out_of_range("");
     return terminals[n].state;
   }
   /**
@@ -179,7 +179,7 @@ struct Gate
   void connect(size_t n)
   {
     if (n >= size)
-      throw std::runtime_error("Index error");
+      throw std::out_of_range("");
     terminals[n].connect();
   }
   /**
@@ -190,7 +190,7 @@ struct Gate
   void disconnect(size_t n)
   {
     if (n >= size)
-      throw std::runtime_error("Index error");
+      throw std::out_of_range("");
     terminals[n].disconnect();
   }
   /**
@@ -206,8 +206,6 @@ struct Gate
     terminals[size++] = term;
     return *this;
   }
-  operator bool() = delete;
-  operator int()  = delete;
 
   /**
    * @brief Input states from stream

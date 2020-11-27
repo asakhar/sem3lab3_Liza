@@ -81,25 +81,29 @@ struct Gate
   unsigned short const& operator()(size_t n, unsigned short val)
   {
     if (n >= N)
-      throw std::runtime_error("Index error");
+      throw std::out_of_range("");
     return terminals[n].state = val;
   }
   unsigned short const& operator[](size_t n)
   {
+    return terminals[n].state;
+  }
+  unsigned short const& at(size_t n)
+  {
     if (n >= N)
-      throw std::runtime_error("Index error");
+      throw std::out_of_range("");
     return terminals[n].state;
   }
   void connect(size_t n)
   {
     if (n >= N)
-      throw std::runtime_error("Index error");
+      throw std::out_of_range("");
     terminals[n].connect();
   }
   void disconnect(size_t n)
   {
     if (n >= N)
-      throw std::runtime_error("Index error");
+      throw std::out_of_range("");
     terminals[n].disconnect();
   }
   Gate& operator+=(Terminal&& term)
