@@ -1,4 +1,4 @@
-#include "LogicGate.hpp"
+#include "LogicGateOperators.hpp"
 #include <map>
 constexpr size_t SIZE = Gate::N;
 typedef std::map<std::string, Gate> GateMap;
@@ -25,7 +25,7 @@ void new_gate(GateMap& lg, std::string& sel)
     std::cin >> conns;
     terms.push_back({ans == "out", conns});
     std::cout << "Input state (0,1 or X): ";
-    terms.back().input();
+    std::cin >> terms.back();
     std::cout << "Do you want to continue?(0_/1) > ";
     std::cin >> ch;
   }
@@ -43,7 +43,7 @@ void remove_gate(GateMap& lg, std::string& sel)
   std::cout << (lg.erase(name) == 1 ? "Successfully removed!" : "Key not found!");
 }
 
-void print_gate(GateMap& lg, std::string& sel) { lg[sel].output(std::cout << sel << " gate: \n"); }
+void print_gate(GateMap& lg, std::string& sel) { std::cout << sel << " gate: \n" << lg[sel]; }
 
 void list_gates(GateMap& lg, std::string& sel)
 {
@@ -84,10 +84,10 @@ void add_terminals(GateMap& lg, std::string& sel)
 
     Terminal term{ans == "out", conns};
     std::cout << "Input state (0,1 or X): ";
-    term.input();
+    std::cin >> term;
     try
     {
-      lg[sel].addTerminal(std::move(term));
+      lg[sel] += std::move(term);
     }
     catch (std::runtime_error& e)
     {
@@ -108,7 +108,7 @@ void get_term_state(GateMap& lg, std::string& sel)
     std::cin >> pos;
   }
 
-  std::cout << "Terminal state: " << lg[sel].getTerminalState(pos);
+  std::cout << "Terminal state: " << lg[sel][pos];
 }
 
 void set_term_state(GateMap& lg, std::string& sel)
@@ -123,7 +123,7 @@ void set_term_state(GateMap& lg, std::string& sel)
   std::cout << "Input terminal state: ";
   std::cin >> st;
 
-  std::cout << "Terminal state set to: " << lg[sel].setTerminalState(pos, st);
+  std::cout << "Terminal state set to: " << lg[sel](pos, st);
 }
 
 void connect_term(GateMap& lg, std::string& sel)
@@ -162,7 +162,7 @@ void disconnect_term(GateMap& lg, std::string& sel)
   }
 }
 
-void renew_states(GateMap& lg, std::string& sel) { lg[sel].input(); }
+void renew_states(GateMap& lg, std::string& sel) { std::cin >> lg[sel]; }
 
 void (*options[])(GateMap&, std::string&) = {exit,           new_gate,     remove_gate,     list_gates,
                                              select_gate,    print_gate,   add_terminals,   get_term_state,

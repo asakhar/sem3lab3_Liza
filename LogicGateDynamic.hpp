@@ -1,285 +1,170 @@
-#include <cstring>
-#include <functional>
 #include <iostream>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
 /**
- * @brief Gate's terminal
- * 
+ *  Gate's terminal
+ *
  */
 struct Terminal
 {
   /**
-   * @brief Determines whether terminal is output or input 
-   * 
+   *  Determines whether terminal is output or input
+   *
    */
   bool isOutput;
   /**
-   * @brief Number of connections (3max for output teminal | 1max for input terminal)
-   * 
+   *  Number of connections (3max for output teminal | 1max for input terminal)
+   *
    */
   unsigned short conn_num;
   /**
-   * @brief Current terminal state (0 - Low, 1 - High, 2 - Undefined)
+   *  Current terminal state (0 - Low, 1 - High, 2 - Undefined)
    *
    */
   unsigned short state;
   /**
-   * @brief Construct a new Terminal object
-   * 
-   * @param isout is terminal output
-   * @param conns number of connections
-   * @param _state initial state
+   *  Construct a new Terminal object
+   *
+   *  isout is terminal output
+   *  conns number of connections
+   *  _state initial state
    */
-  Terminal(bool isout = false, unsigned short conns = 0, unsigned short _state = 0)
-      : isOutput{isout}, conn_num{conns}, state{_state}
-  {
-  }
+  Terminal(bool isout = false, unsigned short conns = 0, unsigned short _state = 0);
   /**
-   * @brief Increase number of connections
-   * 
-   * @return unsigned short const& 
+   *  Increase number of connections
+   *
+   *  unsigned short const&
    */
-  unsigned short const& connect()
-  {
-    if ((isOutput && conn_num < 3) || (!isOutput && conn_num == 0))
-      return ++conn_num;
-    throw std::runtime_error("Number of connections can't be increased!");
-  }
+  unsigned short const& connect();
   /**
-   * @brief Decrease number of connections
-   * 
-   * @return unsigned short const& 
+   *  Decrease number of connections
+   *
+   *  unsigned short const&
    */
-  unsigned short const& disconnect()
-  {
-    if (conn_num > 1)
-      return --conn_num;
-    throw std::runtime_error("Can not disconnect! No connections");
-  }
+  unsigned short const& disconnect();
   /**
-   * @brief Input terminal state
-   * 
-   * @param stream e.g. std::cin
-   * @param term terminal to input
-   * @return std::istream& 
+   *  Input terminal state
+   *
+   *  stream e.g. std::cin
+   *  term terminal to input
+   *  std::istream&
    */
-  friend std::istream& operator>>(std::istream& stream, Terminal& term)
-  {
-    char tmp;
-    bool flag = 1;
-    while (flag)
-    {
-      stream >> tmp;
-      flag = 0;
-      switch (tmp)
-      {
-      case '0':
-        term.state = 0;
-        break;
-      case '1':
-        term.state = 1;
-        break;
-      case 'X':
-        term.state = 2;
-        break;
-      default:
-        std::cout << "Retry>";
-        flag = 1;
-        break;
-      }
-    }
-    return stream;
-  }
+  friend std::istream& operator>>(std::istream& stream, Terminal& term);
 };
 /**
- * @brief Logical Gate
- * 
+ *  Logical Gate
+ *
  */
-struct Gate
+class Gate
 {
   /**
-   * @brief Terminals of gate
-   * 
+   *  Terminals of gate
+   *
    */
   std::unique_ptr<Terminal[]> terminals;
   /**
-   * @brief Number of terminals
-   * 
+   *  Number of terminals
+   *
    */
-  size_t size;
+  size_t _size;
   /**
-   * @brief Construct a new Gate object (default)
-   * 
+   *  Construct a new Gate object (default)
+   *
    */
-  Gate() : size(2)
-  {
-    terminals.reset(new Terminal[size]);
-    terminals[0] = {false, 0, 0};
-    terminals[1] = {true, 0, 1};
-  }
+public:
+  inline size_t size() { return _size; }
+  Gate();
   /**
-   * @brief Construct a new Gate object
-   * 
-   * @param in number of input terminals
-   * @param out number of output terminals
+   *  Construct a new Gate object
+   *
+   *  in number of input terminals
+   *  out number of output terminals
    */
-  Gate(size_t in, size_t out) : size(in + out)
-  {
-    terminals.reset(new Terminal[size]);
-    for (size_t i = 0; i < in; i++)
-      terminals[i] = {false, 0, 0};
-    for (size_t i = in; i < size; i++)
-      terminals[i] = {true, 0, 0};
-  }
+  Gate(size_t in, size_t out);
   /**
-   * @brief Construct a new Gate object
-   * 
-   * @param terms vector of terminals
+   *  Construct a new Gate object
+   *
+   *  terms vector of terminals
    */
-  Gate(std::vector<Terminal> terms) : size(terms.size())
-  {
-    terminals.reset(new Terminal[size]);
-    for (size_t i = 0; i < size; i++)
-      terminals[i] = terms[i];
-  };
+  Gate(std::vector<Terminal> terms);
   /**
-   * @brief Copy-construct a new Gate object
-   * 
-   * @param gt object to copy
+   *  Copy-construct a new Gate object
+   *
+   *  gt object to copy
    */
-  Gate(Gate const& gt)
-  {
-    size = gt.size;
-    terminals.reset(new Terminal[gt.size]);
-    for (size_t i = 0; i < size; i++)
-      terminals[i] = gt.terminals[i];
-  }
+  Gate(Gate const& gt);
   /**
-   * @brief Move-construct a new Gate object
-   * 
-   * @param gt object to move
+   *  Move-construct a new Gate object
+   *
+   *  gt object to move
    */
-  Gate(Gate&& gt)
-  {
-    size      = gt.size;
-    terminals = std::move(gt.terminals);
-  }
+  Gate(Gate&& gt);
   /**
-   * @brief Copy-assignment operator
-   * 
-   * @param gt object to copy
-   * @return Gate& 
+   *  Copy-assignment operator
+   *
+   *  gt object to copy
+   *  Gate&
    */
-  Gate& operator=(Gate const& gt)
-  {
-    size = gt.size;
-    terminals.reset(new Terminal[gt.size]);
-    for (size_t i = 0; i < size; i++)
-      terminals[i] = gt.terminals[i];
-  }
+  Gate& operator=(Gate const& gt);
   /**
-   * @brief Set terminal's state by index n
-   * 
-   * @param n index
-   * @param val value to be set
-   * @return unsigned short const& 
+   *  Set terminal's state by index n
+   *
+   *  n index
+   *  val value to be set
+   *  unsigned short const&
    */
-  unsigned short const& operator()(size_t n, unsigned short val)
-  {
-    if (n >= size)
-      throw std::out_of_range("");
-    return terminals[n].state = val;
-  }
+  unsigned short const& operator()(size_t n, unsigned short val);
   /**
-   * @brief Get terminal's state by index n (without boundary checks)
-   * 
-   * @param n index
-   * @return unsigned short const& 
+   *  Get terminal's state by index n (without boundary checks)
+   *
+   *  n index
+   *  unsigned short const&
    */
-  unsigned short const& operator[](size_t n) { return terminals[n].state; }
+  unsigned short const& operator[](size_t n);
   /**
-   * @brief Get terminal's state by index n (with boundary cheking)
-   * 
-   * @param n index
-   * @return unsigned short const& 
+   *  Get terminal's state by index n (with boundary cheking)
+   *
+   *  n index
+   *  unsigned short const&
    */
-  unsigned short const& at(size_t n)
-  {
-    if (n >= size)
-      throw std::out_of_range("");
-    return terminals[n].state;
-  }
+  unsigned short const& at(size_t n);
   /**
-   * @brief Increase number of connections of terminal by index n
-   * 
-   * @param n index
+   *  Increase number of connections of terminal by index n
+   *
+   *  n index
    */
-  void connect(size_t n)
-  {
-    if (n >= size)
-      throw std::out_of_range("");
-    terminals[n].connect();
-  }
+  void connect(size_t n);
   /**
-   * @brief Decrease number of connections of terminal by index n
-   * 
-   * @param n index
+   *  Decrease number of connections of terminal by index n
+   *
+   *  n index
    */
-  void disconnect(size_t n)
-  {
-    if (n >= size)
-      throw std::out_of_range("");
-    terminals[n].disconnect();
-  }
+  void disconnect(size_t n);
   /**
-   * @brief Add terminal to gate
-   * 
-   * @param term terminal to be added
-   * @return Gate& 
+   *  Add terminal to gate
+   *
+   *  term terminal to be added
+   *  Gate&
    */
-  Gate& operator+=(Terminal&& term)
-  {
-    terminals.reset((Terminal*)std::realloc(terminals.release(), size + 1));
-    terminals[size++] = term;
-    return *this;
-  }
-};
-/**
- * @brief Input states of terminals from stream
- * 
- * @param stream 
- * @param gate 
- * @return std::istream& 
- */
-std::istream& operator>>(std::istream& stream, Gate& gate)
-{
-  for (size_t i = 0; i < gate.size; i++)
-  {
-    std::cout << "Enter state for terminal#" << i + 1 << (gate.terminals[i].isOutput ? " (Output)>" : " (Input)>");
-    stream >> gate.terminals[i].state;
-  }
-  return stream;
-}
+  Gate& operator+=(Terminal&& term);
 
-/**
- * @brief Formatted output of gate
- * 
- * @param stream 
- * @param gate 
- * @return std::ostream& 
- */
-std::ostream& operator<<(std::ostream& stream, Gate& gate)
-{
-  stream << "Inputs:  ";
-  for (size_t i = 0; i < gate.size; i++)
-    if (!gate.terminals[i].isOutput)
-      stream << (((gate.terminals[i].state == 2) ? "  X   " : (gate.terminals[i].state ? " High " : " Low  ")));
-  stream << "\nOutputs: ";
-  for (size_t i = 0; i < gate.size; i++)
-    if (gate.terminals[i].isOutput)
-      stream << (((gate.terminals[i].state == 2) ? "  X   " : (gate.terminals[i].state ? " High " : " Low  ")));
-  return stream;
-}
+  /**
+   *  Input states of terminals from stream
+   *
+   *  stream
+   *  gate
+   *  std::istream&
+   */
+  friend std::istream& operator>>(std::istream& stream, Gate& gate);
+
+  /**
+   *  Formatted output of gate
+   *
+   *  stream
+   *  gate
+   *  std::ostream&
+   */
+  friend std::ostream& operator<<(std::ostream& stream, Gate& gate);
+};

@@ -48,7 +48,7 @@ void list_gates(GateMap& lg, std::string& sel)
 {
   for (auto& keyval : lg)
   {
-    std::cout << keyval.first << (&*lg.rbegin() == &keyval ? "" : ", ");
+    std::cout << keyval.first << " ";
   }
   std::cout << "\n";
 }
@@ -88,7 +88,7 @@ void add_terminals(GateMap& lg, std::string& sel)
     {
       lg[sel] += std::move(term);
     }
-    catch (std::runtime_error& e)
+    catch (std::bad_alloc& e)
     {
       std::cerr << e.what() << std::endl;
       return;
@@ -100,10 +100,10 @@ void add_terminals(GateMap& lg, std::string& sel)
 
 void get_term_state(GateMap& lg, std::string& sel)
 {
-  size_t pos;
-  while (pos >= lg[sel].size)
+  size_t pos = lg[sel].size();
+  while (pos >= lg[sel].size())
   {
-    std::cout << "Input terminal number (from 0 to " << lg[sel].size - 1 << "): ";
+    std::cout << "Input terminal number (from 0 to " << lg[sel].size() - 1 << "): ";
     std::cin >> pos;
   }
 
@@ -112,10 +112,10 @@ void get_term_state(GateMap& lg, std::string& sel)
 
 void set_term_state(GateMap& lg, std::string& sel)
 {
-  size_t pos;
-  while (pos >= lg[sel].size)
+  size_t pos = lg[sel].size();
+  while (pos >= lg[sel].size())
   {
-    std::cout << "Input terminal number (from 0 to " << lg[sel].size - 1 << "): ";
+    std::cout << "Input terminal number (from 0 to " << lg[sel].size() - 1 << "): ";
     std::cin >> pos;
   }
   unsigned short st;
@@ -127,10 +127,10 @@ void set_term_state(GateMap& lg, std::string& sel)
 
 void connect_term(GateMap& lg, std::string& sel)
 {
-  size_t pos;
-  while (pos >= lg[sel].size)
+  size_t pos = lg[sel].size();
+  while (pos >= lg[sel].size())
   {
-    std::cout << "Input terminal number (from 0 to " << lg[sel].size - 1 << "): ";
+    std::cout << "Input terminal number (from 0 to " << lg[sel].size() - 1 << "): ";
     std::cin >> pos;
   }
   try
@@ -145,10 +145,10 @@ void connect_term(GateMap& lg, std::string& sel)
 
 void disconnect_term(GateMap& lg, std::string& sel)
 {
-  size_t pos;
-  while (pos >= lg[sel].size)
+  size_t pos = lg[sel].size();
+  while (pos >= lg[sel].size())
   {
-    std::cout << "Input terminal number (from 0 to " << lg[sel].size - 1 << "): ";
+    std::cout << "Input terminal number (from 0 to " << lg[sel].size() - 1 << "): ";
     std::cin >> pos;
   }
   try
@@ -166,7 +166,6 @@ void renew_states(GateMap& lg, std::string& sel) { std::cin >> lg[sel]; }
 void (*options[])(GateMap&, std::string&) = {exit,           new_gate,     remove_gate,     list_gates,
                                              select_gate,    print_gate,   add_terminals,   get_term_state,
                                              set_term_state, connect_term, disconnect_term, renew_states};
-
 int main()
 {
   GateMap gates;
@@ -176,27 +175,31 @@ int main()
   while (1)
   {
     std::cout << "Ask... \n\
-    [0]Exit\n\
-    [1]New gate\n\
-    [2]Remove gate\n\
-    [3]List gates\n\
-    [4]Select gate\n\
-    [5]Print gate\n\
-    [6]Add terminals\n\
-    [7]Get terminal state\n\
-    [8]Set terminal state\n\
-    [9]Connect terminal\n\
-    [10]Disconnect terminal\n\
-    [11]Renew satates\n"
+    [1]Exit\n\
+    [2]New gate\n\
+    [3]Remove gate\n\
+    [4]List gates\n\
+    [5]Select gate\n\
+    [6]Print gate\n\
+    [7]Add terminals\n\
+    [8]Get terminal state\n\
+    [9]Set terminal state\n\
+    [10]Connect terminal\n\
+    [11]Disconnect terminal\n\
+    [12]Renew satates\n"
                  ">>";
     int choice;
     std::cin >> choice;
-    if (choice > sizeof(options) / 8 - 1 || choice < 0)
+    if (choice > sizeof(options) / sizeof(options[0]) || choice <= 0)
     {
+      std::cin.clear();
+      char tmp = '\0';
+      while (tmp != '\n')
+        tmp = std::cin.get();
       std::cout << "Try again!\n";
       continue;
     }
-    options[choice](gates, selected);
+    options[choice - 1](gates, selected);
     std::cout << std::endl;
   }
 }
